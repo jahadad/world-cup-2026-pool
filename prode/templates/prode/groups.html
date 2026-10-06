@@ -1,0 +1,40 @@
+{% extends "prode/base.html" %}
+{% load static %}
+{% block title %}Groups · WC26 Pool{% endblock %}
+
+{% block content %}
+<h2 class="page-title">World Cup groups</h2>
+
+{% for g in group_tables %}
+<h3 class="group-title">Group {{ g.letter }}</h3>
+<table class="board group-board">
+  <thead>
+    <tr>
+      <th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in g.rows %}
+    <tr class="{% if forloop.counter <= 2 %}q-direct{% elif forloop.counter == 3 %}q-third{% endif %}">
+      <td>{{ forloop.counter }}</td>
+      <td class="tcell">
+        <img class="gflag" src="{% static 'flags/' %}{{ r.team.code }}.png" alt="">
+        {{ r.team.name }}
+      </td>
+      <td>{{ r.pj }}</td>
+      <td>{{ r.g }}</td>
+      <td>{{ r.e }}</td>
+      <td>{{ r.p }}</td>
+      <td>{% if r.dif > 0 %}+{% endif %}{{ r.dif }}</td>
+      <td class="total">{{ r.pts }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
+<p class="legend">
+  <span class="dot dot-green"></span> Advances (1st &amp; 2nd) ·
+  <span class="dot dot-gold"></span> Can still advance among the 8 best third-placed teams
+</p>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "prode/base.html" %}
+{% block title %}Leagues · WC26 Pool{% endblock %}
+
+{% block content %}
+<h2 class="page-title">My leagues</h2>
+
+{% for t in mine %}
+<a href="{% url 'tournament_detail' t.code %}" class="card-link">
+  <article class="card">
+    <div class="card-top" style="margin-bottom: 0;">
+      <strong>{{ t.name }}</strong>
+      <span class="chip">{{ t.code }}</span>
+      <span class="time" style="font-weight: 400; color: var(--muted); font-size: 13px; font-family: var(--body);">
+        {{ t.members.count }} member{{ t.members.count|pluralize }}
+      </span>
+    </div>
+  </article>
+</a>
+{% empty %}
+<div class="panel" style="margin-top: 0;">
+  You're not in any league yet. Create one and share the invite with your crew,
+  or join with the code someone gave you. Your picks count in every league you join.
+</div>
+{% endfor %}
+
+<div class="panel">
+  <h2>Create a league</h2>
+  <form class="auth" method="post" action="{% url 'create_tournament' %}">
+    {% csrf_token %}
+    {{ create_form.as_p }}
+    <button class="btn" type="submit">Create league</button>
+  </form>
+</div>
+
+<div class="panel">
+  <h2>Join with a code</h2>
+  <form class="auth" method="post" action="{% url 'join_tournament_form' %}">
+    {% csrf_token %}
+    <p><label for="id_code">League code</label>
+    <input type="text" name="code" id="id_code" required autocapitalize="characters"
+           style="text-transform: uppercase;" placeholder="e.g. K7M2XQ"></p>
+    <button class="btn" type="submit">Join</button>
+  </form>
+</div>
+{% endblock %}

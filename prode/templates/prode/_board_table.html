@@ -1,0 +1,19 @@
+<table class="board">
+  <thead>
+    <tr>
+      <th>#</th><th>Player</th><th>Pts</th><th>Exact</th><th>Outcome</th><th>Played</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in table %}
+    <tr {% if row.user.id == user.id %}class="me"{% endif %}>
+      <td><span class="rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">{{ forloop.counter }}</span></td>
+      <td>{{ row.user.first_name|default:row.user.username }}</td>
+      <td class="total">{{ row.points }}</td>
+      <td>{{ row.exact }}</td>
+      <td>{{ row.outcome }}</td>
+      <td>{{ row.played }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

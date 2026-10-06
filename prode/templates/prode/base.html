@@ -1,0 +1,391 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1e2c4a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WC26 Pool">
+<link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+<link rel="icon" type="image/png" sizes="48x48" href="{% static 'icons/favicon-48.png' %}">
+<link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+<title>{% block title %}World Cup 2026 Pool{% endblock %}</title>
+<style>
+  @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 400; font-display: swap; src: url({% static 'fonts/Barlow-400.woff2' %}) format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 500; font-display: swap; src: url({% static 'fonts/Barlow-500.woff2' %}) format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 600; font-display: swap; src: url({% static 'fonts/Barlow-600.woff2' %}) format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 700; font-display: swap; src: url({% static 'fonts/Barlow-700.woff2' %}) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 600; font-display: swap; src: url({% static 'fonts/BarlowCondensed-600.woff2' %}) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url({% static 'fonts/BarlowCondensed-700.woff2' %}) format('woff2'); }
+
+  :root {
+    --bg: #f2f4f9;
+    --card: #ffffff;
+    --line: #e3e7f0;
+    --ink: #131a2c;
+    --muted: #5b6377;
+    --blue: #2f6ff0;
+    --blue-dark: #2356c4;
+    --blue-soft: #e8effd;
+    --navy: #1e2c4a;
+    --green: #0a9550;
+    --green-soft: #e2f6eb;
+    --red: #d92b45;
+    --red-soft: #fcebee;
+    --gold: #c79420;
+    --gold-soft: #fbf3df;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(19, 26, 44, .05);
+    --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --body: "Barlow", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--body); background: var(--bg); color: var(--ink); font-size: 16px;
+    line-height: 1.5; padding-bottom: 80px;
+    background-image: radial-gradient(at 50% -120px, #e4ebfa 0%, var(--bg) 420px);
+  }
+  a { color: var(--blue); }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+
+  header.topbar {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--navy); color: #fff;
+    padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+  }
+  header.topbar img { width: 26px; height: 26px; border-radius: 6px; background: #fff; }
+  header.topbar h1 {
+    font-family: var(--display); font-size: 21px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  header.topbar h1 .year { color: #ffd166; }
+  header.topbar .who { margin-left: auto; color: #aab6d4; font-size: 13px; font-weight: 500; }
+  .logout-form { display: flex; }
+  .logout-form button {
+    background: none; border: 0; color: #aab6d4; cursor: pointer; padding: 8px;
+    display: flex; align-items: center; transition: color .2s;
+  }
+  .logout-form button:hover { color: #fff; }
+  .logout-form svg { width: 19px; height: 19px; }
+
+  main { max-width: 560px; margin: 0 auto; padding: 12px 12px 24px; }
+  .messages { max-width: 560px; margin: 10px auto 0; padding: 0 12px; }
+  .messages .msg { border-radius: 10px; padding: 10px 14px; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+  .msg.success { background: var(--green-soft); color: #066239; }
+  .msg.error { background: var(--red-soft); color: #a31f35; }
+  .msg.info { background: var(--blue-soft); color: var(--blue-dark); }
+
+  .page-title {
+    font-family: var(--display); font-size: 22px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .03em; padding: 14px 4px 10px;
+  }
+
+  .day-head {
+    font-family: var(--display); font-size: 17px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em;
+    padding: 16px 4px 8px; cursor: pointer; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .day-head::-webkit-details-marker { display: none; }
+  .day-head::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin-bottom: 3px; transition: transform .2s; }
+  details:not([open]) .day-head::after { transform: rotate(-45deg); margin-bottom: 0; }
+  .day-head .today-tag {
+    font-family: var(--body); background: var(--blue); color: #fff; font-size: 11px; font-weight: 700;
+    border-radius: 999px; padding: 2px 9px; letter-spacing: .06em;
+  }
+  .day-head .count { font-family: var(--body); color: var(--muted); font-weight: 500; font-size: 12px; margin-left: auto; letter-spacing: 0; text-transform: none; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow);
+  }
+  a.card-link { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+  @media (hover: hover) {
+    a.card-link .card { transition: border-color .2s, box-shadow .2s; }
+    a.card-link:hover .card { border-color: var(--blue); box-shadow: 0 3px 10px rgba(47, 111, 240, .12); }
+  }
+  .card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .chip {
+    background: #edf0f7; color: var(--muted); font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+  }
+  .chip.locked { background: var(--red-soft); color: var(--red); }
+  .chip.result { background: var(--green-soft); color: #066239; }
+  .card-top .time {
+    margin-left: auto; font-family: var(--display); font-weight: 700; font-size: 17px;
+    letter-spacing: .03em; white-space: nowrap;
+  }
+  .matchrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+  .team { flex: 1; text-align: center; min-width: 0; }
+  .team .flag { min-height: 33px; display: flex; justify-content: center; }
+  .team .flag img {
+    width: 44px; height: 33px; object-fit: cover; display: block;
+    border-radius: 6px; box-shadow: 0 1px 3px rgba(19, 26, 44, .25);
+  }
+  .flag-tbd {
+    width: 44px; height: 33px; border-radius: 6px; background: #e8ebf3;
+    color: #9aa3b8; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .team .tname { font-size: 13px; font-weight: 500; color: var(--ink); margin-top: 5px; overflow-wrap: break-word; }
+  .scorebox { display: flex; align-items: center; gap: 8px; padding-top: 7px; }
+  .scorebox .vs { color: var(--muted); font-size: 12px; font-weight: 600; }
+  .scorebox input, .scorebox .fixed {
+    width: 47px; height: 47px; text-align: center;
+    font-family: var(--display); font-size: 23px; font-weight: 700;
+    border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .scorebox input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .scorebox .fixed { display: flex; align-items: center; justify-content: center; background: #f4f6fb; }
+  .scorebox input::-webkit-outer-spin-button, .scorebox input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .scorebox input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  .card-foot {
+    display: flex; align-items: center; gap: 8px; margin-top: 10px;
+    font-size: 13px; color: var(--muted); flex-wrap: wrap;
+  }
+  .card-foot .status { font-weight: 600; }
+  .card-foot .status.ok { color: var(--green); }
+  .card-foot .status.err { color: var(--red); }
+  .pts { font-weight: 700; border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
+  .pts.p-exact { background: var(--gold-soft); color: var(--gold); }
+  .pts.p-outcome { background: var(--blue-soft); color: var(--blue-dark); }
+  .pts.p-zero { background: #eef0f5; color: var(--muted); }
+  .card-foot a { color: var(--blue); text-decoration: none; margin-left: auto; font-weight: 600; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  table.board { width: 100%; border-collapse: collapse; background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  table.board th, table.board td { padding: 11px 8px; text-align: center; font-size: 14.5px; }
+  table.board th { background: var(--navy); color: #aab6d4; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  table.board td:nth-child(2), table.board th:nth-child(2) { text-align: left; }
+  table.board tr + tr td { border-top: 1px solid var(--line); }
+  table.board tr.me td { background: var(--blue-soft); font-weight: 700; }
+  table.board .total { font-family: var(--display); font-weight: 700; font-size: 18px; }
+  .rank {
+    display: inline-flex; width: 26px; height: 26px; border-radius: 999px;
+    align-items: center; justify-content: center; font-weight: 700; font-size: 12.5px;
+    background: #eef0f5; color: var(--muted);
+  }
+  .rank.r1 { background: var(--gold); color: #fff; }
+  .rank.r2 { background: #9aa6bd; color: #fff; }
+  .rank.r3 { background: #b9722d; color: #fff; }
+
+  .group-title {
+    font-family: var(--display); font-size: 17px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; padding: 16px 4px 8px;
+  }
+  table.group-board { margin-bottom: 4px; }
+  table.group-board th, table.group-board td { padding: 9px 5px; font-size: 13.5px; }
+  table.group-board .tcell { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+  .gflag { width: 22px; height: 16px; object-fit: cover; border-radius: 3px; box-shadow: 0 1px 2px rgba(19, 26, 44, .25); }
+  tr.q-direct td:first-child { box-shadow: inset 3px 0 0 var(--green); }
+  tr.q-third td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+  .legend { color: var(--muted); font-size: 12.5px; padding: 12px 4px; }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 99px; vertical-align: baseline; }
+  .legend .dot-green { background: var(--green); }
+  .legend .dot-gold { background: var(--gold); }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 16px; margin-top: 16px; box-shadow: var(--shadow); }
+  .panel h2 { font-family: var(--display); font-size: 20px; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 12px; }
+  form.auth p { margin-bottom: 12px; }
+  form.auth label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+  form.auth input { width: 100%; padding: 12px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 16px; font-family: var(--body); transition: border-color .2s, box-shadow .2s; }
+  form.auth input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  form.auth .helptext { font-size: 12.5px; color: var(--muted); display: block; margin-top: 3px; }
+  form.auth ul.errorlist { color: var(--red); font-size: 13px; list-style: none; margin: 4px 0; }
+  .btn {
+    display: block; width: 100%; background: var(--blue); color: #fff; border: 0;
+    border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer;
+    font-family: var(--body); transition: background .2s; text-align: center; text-decoration: none;
+  }
+  .btn:hover, .btn:active { background: var(--blue-dark); }
+  .btn.copy { background: var(--green); }
+  .btn.copy:hover { background: #077a42; }
+  .alt-link { text-align: center; margin: 14px 0; font-size: 14px; }
+  .alt-link a { color: var(--blue); text-decoration: none; font-weight: 600; }
+
+  nav.bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+    background: var(--card); border-top: 1px solid var(--line);
+    display: flex; justify-content: space-around; align-items: stretch;
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  }
+  nav.bottombar a, nav.bottombar button {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    text-decoration: none; background: none; border: 0;
+    color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; padding: 5px 0;
+    font-family: var(--body); transition: color .2s; min-height: 44px;
+  }
+  nav.bottombar svg { width: 22px; height: 22px; }
+  nav.bottombar a.active { color: var(--blue); }
+  nav.bottombar a:hover, nav.bottombar button:hover { color: var(--ink); }
+  nav.bottombar a.active:hover { color: var(--blue); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    details[open] .card { animation: rise .3s ease backwards; }
+    details[open] .card:nth-of-type(1) { animation-delay: .02s; }
+    details[open] .card:nth-of-type(2) { animation-delay: .06s; }
+    details[open] .card:nth-of-type(3) { animation-delay: .1s; }
+    details[open] .card:nth-of-type(4) { animation-delay: .14s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <img src="{% static 'icons/favicon-48.png' %}" alt="">
+  <h1>World Cup <span class="year">2026</span> Pool</h1>
+  {% if user.is_authenticated %}
+  <span class="who">{{ user.first_name|default:user.username }}</span>
+  <form method="post" action="{% url 'logout' %}" class="logout-form">{% csrf_token %}
+    <button type="submit" title="Log out" aria-label="Log out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </form>
+  {% endif %}
+</header>
+{% if messages %}
+<div class="messages">
+  {% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
+</div>
+{% endif %}
+<main>{% block content %}{% endblock %}</main>
+{% if user.is_authenticated %}
+<nav class="bottombar">
+  <a href="{% url 'fixture' %}" class="{% if request.resolver_match.url_name == 'fixture' %}active{% endif %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Matches</a>
+  <a href="{% url 'groups' %}" class="{% if request.resolver_match.url_name == 'groups' %}active{% endif %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Groups</a>
+  <a href="{% url 'leaderboard' %}" class="{% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+    Ranking</a>
+  <a href="{% url 'tournaments' %}" class="{% if 'tournament' in request.resolver_match.url_name %}active{% endif %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Leagues</a>
+  {% if user.is_staff %}
+  <a href="{% url 'admin:index' %}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+    Admin</a>
+  {% endif %}
+</nav>
+{% endif %}
+<script>
+(function () {
+  var timers = {};
+
+  function saveForm(form) {
+    var home = form.querySelector('[name=home_score]');
+    var away = form.querySelector('[name=away_score]');
+    if (home.value === '' || away.value === '') return;
+    var status = form.closest('.card').querySelector('.status');
+    status.textContent = 'Saving…';
+    status.className = 'status';
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'x-requested-with': 'fetch' }
+    }).then(function (res) {
+      if (res.redirected) { window.location = res.url; return null; }
+      return res.json();
+    }).then(function (data) {
+      if (!data) return;
+      status.textContent = data.msg;
+      status.className = 'status ' + (data.ok ? 'ok' : 'err');
+    }).catch(function () {
+      status.textContent = 'Network error, try again';
+      status.className = 'status err';
+    });
+  }
+
+  document.addEventListener('input', function (e) {
+    var form = e.target.closest('form.pred-form');
+    if (!form) return;
+    clearTimeout(timers[form.action]);
+    timers[form.action] = setTimeout(function () { saveForm(form); }, 500);
+  });
+
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form.classList.contains('pred-form')) return;
+    e.preventDefault();
+    clearTimeout(timers[form.action]);
+    saveForm(form);
+  });
+
+  // Copy-invite button (for Slack and anywhere else)
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.copy-invite');
+    if (!btn) return;
+    e.preventDefault();
+    navigator.clipboard.writeText(btn.dataset.text).then(function () {
+      btn.textContent = 'Copied to clipboard ✓';
+    }, function () {
+      window.prompt('Copy this invite:', btn.dataset.text);
+    });
+  });
+
+  // Times in the visitor's local timezone
+  document.querySelectorAll('.js-local[data-utc]').forEach(function (el) {
+    var d = new Date(parseInt(el.dataset.utc, 10) * 1000);
+    el.textContent = d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  });
+
+  // Group match cards into local-date sections
+  var list = document.getElementById('match-list');
+  if (list) {
+    var cards = Array.prototype.slice.call(list.querySelectorAll('.card[data-utc]'));
+    if (cards.length) {
+      var todayKey = new Date().toDateString();
+      var now = new Date();
+      var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var groups = [], current = null;
+      cards.forEach(function (card) {
+        var d = new Date(parseInt(card.dataset.utc, 10) * 1000);
+        var timeEl = card.querySelector('.time');
+        if (timeEl) timeEl.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var key = d.toDateString();
+        if (!current || current.key !== key) {
+          current = { key: key, date: d, cards: [] };
+          groups.push(current);
+        }
+        current.cards.push(card);
+      });
+      list.textContent = '';
+      groups.forEach(function (g) {
+        var det = document.createElement('details');
+        if (g.date >= todayStart || g.key === todayKey) det.open = true;
+        if (g.key === todayKey) det.className = 'is-today';
+        var sum = document.createElement('summary');
+        sum.className = 'day-head';
+        sum.appendChild(document.createTextNode(
+          g.date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
+        ));
+        if (g.key === todayKey) {
+          var tag = document.createElement('span');
+          tag.className = 'today-tag';
+          tag.textContent = 'TODAY';
+          sum.appendChild(tag);
+        }
+        var count = document.createElement('span');
+        count.className = 'count';
+        count.textContent = g.cards.length + (g.cards.length === 1 ? ' match' : ' matches');
+        sum.appendChild(count);
+        det.appendChild(sum);
+        g.cards.forEach(function (c) { det.appendChild(c); });
+        list.appendChild(det);
+      });
+      if (!location.hash) {
+        var today = document.querySelector('details.is-today');
+        if (today) today.scrollIntoView({ block: 'start' });
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>

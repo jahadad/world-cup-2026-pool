@@ -1,0 +1,68 @@
+{% extends "prode/base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="match-list">
+  {% for m in matches %}
+  <article class="card" id="m{{ m.number }}" data-utc="{{ m.kickoff|date:'U' }}">
+    <div class="card-top">
+      <span class="chip">{{ m.stage_label }}</span>
+      {% if m.has_result %}
+        <span class="chip result">FT {{ m.home_score }} - {{ m.away_score }}</span>
+      {% elif not m.is_open and m.teams_defined %}
+        <span class="chip locked">Locked</span>
+      {% endif %}
+      <span class="time">{{ m.kickoff|date:"H:i" }} UTC</span>
+    </div>
+
+    <div class="matchrow">
+      <div class="team">
+        <div class="flag">{% if m.home_team %}<img src="{% static 'flags/' %}{{ m.home_team.code }}.png" alt="{{ m.home_team.name }}">{% else %}<span class="flag-tbd">?</span>{% endif %}</div>
+        <div class="tname">{{ m.home_label }}</div>
+      </div>
+
+      {% if m.is_open %}
+      <form class="pred-form scorebox" method="post" action="{% url 'save_prediction' m.number %}">
+        {% csrf_token %}
+        <input type="number" name="home_score" min="0" max="99" inputmode="numeric"
+               autocomplete="off" required
+               value="{{ m.user_prediction.home_score|default_if_none:'' }}">
+        <span class="vs">vs</span>
+        <input type="number" name="away_score" min="0" max="99" inputmode="numeric"
+               autocomplete="off" required
+               value="{{ m.user_prediction.away_score|default_if_none:'' }}">
+        <button type="submit" class="visually-hidden">Save</button>
+      </form>
+      {% else %}
+      <div class="scorebox">
+        <span class="fixed">{{ m.user_prediction.home_score|default_if_none:"–" }}</span>
+        <span class="vs">vs</span>
+        <span class="fixed">{{ m.user_prediction.away_score|default_if_none:"–" }}</span>
+      </div>
+      {% endif %}
+
+      <div class="team">
+        <div class="flag">{% if m.away_team %}<img src="{% static 'flags/' %}{{ m.away_team.code }}.png" alt="{{ m.away_team.name }}">{% else %}<span class="flag-tbd">?</span>{% endif %}</div>
+        <div class="tname">{{ m.away_label }}</div>
+      </div>
+    </div>
+
+    <div class="card-foot">
+      {% if m.is_open %}
+        <span class="status">{% if m.user_prediction %}Saved ✓{% else %}No pick yet{% endif %}</span>
+        <span>· locks {{ lock_minutes }} min before kickoff</span>
+      {% elif m.has_result and m.user_prediction %}
+        <span class="pts {% if m.user_prediction.points == points_exact %}p-exact{% elif m.user_prediction.points > 0 %}p-outcome{% else %}p-zero{% endif %}">
+          +{{ m.user_prediction.points }} pt{{ m.user_prediction.points|pluralize }}
+        </span>
+      {% elif not m.teams_defined %}
+        <span>Teams TBD</span>
+      {% endif %}
+      <a href="{% url 'match_detail' m.number %}">See picks →</a>
+    </div>
+  </article>
+  {% empty %}
+  <div class="panel">No matches loaded yet. Ping the organizer.</div>
+  {% endfor %}
+</div>
+{% endblock %}

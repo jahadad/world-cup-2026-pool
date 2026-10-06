@@ -1,0 +1,21 @@
+{% extends "prode/base.html" %}
+{% block title %}Log in · WC26 Pool{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <h2>Log in</h2>
+  {% if locked %}
+  <ul class="errorlist" style="color: var(--red); font-size: 13px; list-style: none; margin-bottom: 10px;"><li>Too many attempts. Wait 5 minutes and try again.</li></ul>
+  {% elif form.errors %}
+  <ul class="errorlist" style="color: var(--red); font-size: 13px; list-style: none; margin-bottom: 10px;"><li>Wrong username or password.</li></ul>
+  {% endif %}
+  <form class="auth" method="post">
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <p><label for="id_username">Username</label><input type="text" name="username" id="id_username" autocapitalize="none" autofocus required></p>
+    <p><label for="id_password">Password</label><input type="password" name="password" id="id_password" required></p>
+    <button class="btn" type="submit">Log in</button>
+  </form>
+  <p class="alt-link">First time here? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Sign up</a></p>
+</div>
+{% endblock %}

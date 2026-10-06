@@ -1,0 +1,73 @@
+{% extends "prode/base.html" %}
+{% load static %}
+{% block title %}{{ match.home_label }} vs {{ match.away_label }} · WC26 Pool{% endblock %}
+
+{% block content %}
+<article class="card" style="margin-top: 12px;">
+  <div class="card-top">
+    <span class="chip">{{ match.stage_label }}</span>
+    {% if match.has_result %}
+      <span class="chip result">FT {{ match.home_score }} - {{ match.away_score }}</span>
+    {% elif not match.is_open and match.teams_defined %}
+      <span class="chip locked">Locked</span>
+    {% endif %}
+    <span class="time js-local" data-utc="{{ match.kickoff|date:'U' }}">{{ match.kickoff|date:"M j, H:i" }} UTC</span>
+  </div>
+  <div class="matchrow">
+    <div class="team">
+      <div class="flag">{% if match.home_team %}<img src="{% static 'flags/' %}{{ match.home_team.code }}.png" alt="{{ match.home_team.name }}">{% else %}<span class="flag-tbd">?</span>{% endif %}</div>
+      <div class="tname">{{ match.home_label }}</div>
+    </div>
+    <div class="scorebox">
+      <span class="fixed">{{ match.home_score|default_if_none:"–" }}</span>
+      <span class="vs">vs</span>
+      <span class="fixed">{{ match.away_score|default_if_none:"–" }}</span>
+    </div>
+    <div class="team">
+      <div class="flag">{% if match.away_team %}<img src="{% static 'flags/' %}{{ match.away_team.code }}.png" alt="{{ match.away_team.name }}">{% else %}<span class="flag-tbd">?</span>{% endif %}</div>
+      <div class="tname">{{ match.away_label }}</div>
+    </div>
+  </div>
+  <div class="card-foot">
+    {% if match.venue %}<span>{{ match.venue }}{% if match.city %}, {{ match.city }}{% endif %}</span>{% endif %}
+  </div>
+</article>
+
+{% if show_picks %}
+<table class="board">
+  <thead>
+    <tr><th>Player</th><th>Pick</th><th>Pts</th></tr>
+  </thead>
+  <tbody>
+    {% for p in predictions %}
+    <tr {% if p.user_id == user.id %}class="me"{% endif %}>
+      <td style="text-align:left">{{ p.user.first_name|default:p.user.username }}</td>
+      <td>{{ p.home_score }} - {{ p.away_score }}</td>
+      <td>{% if p.points is not None %}{{ p.points }}{% else %}–{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No picks for this match.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<table class="board">
+  <thead>
+    <tr><th>Player</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for p in predictions %}
+    <tr {% if p.user_id == user.id %}class="me"{% endif %}>
+      <td style="text-align:left">{{ p.user.first_name|default:p.user.username }}</td>
+      <td style="color: var(--green); font-weight: 600;">Locked in ✓</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">No picks for this match yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="legend">Picks are revealed when the match locks, so nobody can copy.</p>
+{% endif %}
+
+<p class="alt-link"><a href="{% url 'fixture' %}#m{{ match.number }}">← Back to matches</a></p>
+{% endblock %}

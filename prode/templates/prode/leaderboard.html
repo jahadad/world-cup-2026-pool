@@ -1,0 +1,27 @@
+{% extends "prode/base.html" %}
+{% block title %}Ranking · WC26 Pool{% endblock %}
+
+{% block content %}
+{% for tt in tournament_tables %}
+{% with table=tt.table %}
+<h2 class="page-title">{{ tt.tournament.name }}</h2>
+{% include "prode/_board_table.html" %}
+<p class="alt-link" style="text-align: right; margin: 8px 4px 4px;">
+  <a href="{% url 'tournament_detail' tt.tournament.code %}">Invite people →</a>
+</p>
+{% endwith %}
+{% endfor %}
+
+{% if not tournament_tables %}
+<div class="panel" style="margin-top: 12px;">
+  You're not in any league yet. Create one for your crew from the
+  <a href="{% url 'tournaments' %}">Leagues</a> tab, or join with the code
+  someone shared with you, and the ranking will show up here.
+</div>
+{% else %}
+<p class="legend">
+  Exact: spot-on score ({{ points_exact }} pts). Outcome: right winner or draw ({{ points_outcome }} pt).
+  Tiebreaker: most exact scores.
+</p>
+{% endif %}
+{% endblock %}

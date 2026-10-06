@@ -1,0 +1,15 @@
+{% extends "prode/base.html" %}
+{% block title %}Sign up · WC26 Pool{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <h2>Join the pool</h2>
+  <form class="auth" method="post">
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Create account</button>
+  </form>
+  <p class="alt-link">Already have an account? <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Log in</a></p>
+</div>
+{% endblock %}

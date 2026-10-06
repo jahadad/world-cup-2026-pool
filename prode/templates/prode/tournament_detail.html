@@ -1,0 +1,32 @@
+{% extends "prode/base.html" %}
+{% block title %}{{ tournament.name }} · WC26 Pool{% endblock %}
+
+{% block content %}
+<div class="panel" style="margin-top: 12px;">
+  <div class="card-top" style="margin-bottom: 6px;">
+    <h2 style="margin: 0;">{{ tournament.name }}</h2>
+    <span class="chip" style="margin-left: auto;">{{ tournament.code }}</span>
+  </div>
+  <p style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
+    {{ tournament.members.count }} member{{ tournament.members.count|pluralize }} ·
+    created by {{ tournament.owner.first_name|default:tournament.owner.username }}
+  </p>
+  {% if is_member %}
+  <button class="btn copy copy-invite" data-text="{{ share_text }}">Copy invite message</button>
+  <p class="legend" style="padding: 8px 0 0;">Paste it in Slack, WhatsApp, wherever your people are.</p>
+  {% else %}
+  <form method="post" action="{% url 'join_tournament_form' %}">
+    {% csrf_token %}
+    <input type="hidden" name="code" value="{{ tournament.code }}">
+    <button class="btn" type="submit">Join this league</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if is_member %}
+<h2 class="page-title">League ranking</h2>
+{% include "prode/_board_table.html" %}
+{% endif %}
+
+<p class="alt-link"><a href="{% url 'tournaments' %}">← Back to leagues</a></p>
+{% endblock %}
